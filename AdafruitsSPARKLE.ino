@@ -1,6 +1,7 @@
 #include <Adafruit_NeoPixel.h>
 #define PIN 5
 #define NUM_LEDS 300
+#define SWITCH_TIMER 10000
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = pin number (most are valid)
 // Parameter 3 = pixel type flags, add together as needed:
@@ -16,11 +17,11 @@ void setup() {
 }
 
 void loop() {
-  Sparkle((255),(255),(255), 0);
-  //Sparkle(random(255), random(255), random(255), 0);
   strip.clear();
-  delay(200);
-  Strobe(0xff, 0xff, 0xff, 10, 50, 1000);
+  if (millis() / SWITCH_TIMER % 2 == 0)
+    Sparkle(255, 255, 255, 0);
+  else
+    Strobe(255, 255, 255, 10, 50, 1000); 
 }
 
 void Sparkle(byte red, byte green, byte blue, int SpeedDelay) {
@@ -40,6 +41,7 @@ void Strobe(byte red, byte green, byte blue, int StrobeCount, int FlashDelay, in
     showStrip();
     delay(FlashDelay);
   }
+}
 
 void showStrip() {
  #ifdef ADAFRUIT_NEOPIXEL_H
