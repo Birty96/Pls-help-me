@@ -55,6 +55,110 @@ void Sparkle(byte red, byte green, byte blue, int SpeedDelay) {
 }
 
 void Strobe(byte red, byte green, byte blue, int StrobeCount, int FlashDelay, int EndPause){
+  for(int j = 0; j < StrobeCount; j++); {
+    setAll(red,green,blue);
+    showStrip();
+    delay(FlashDelay);
+    setAll(0,0,0);
+    showStrip();
+    delay(FlashDelay);
+  }
+}
+
+  void FadeInOut(byte red, byte green, byte blue) {
+  float r, g, b;
+     
+  for(int k = 0; k < 256; k=k+1) {
+    r = (k/256.0)*red;
+    g = (k/256.0)*green;
+    b = (k/256.0)*blue;
+    setAll(r,g,b);
+    showStrip();
+  }
+     
+  for(int k = 255; k >= 0; k=k-2) {
+    r = (k/256.0)*red;
+    g = (k/256.0)*green;
+    b = (k/256.0)*blue;
+    setAll(r,g,b);
+    showStrip();
+  }
+ }
+
+void setup() {
+  Serial.begin(9600);
+  strip.begin();
+  strip.show(); // Initialize all pixels to 'off'
+}
+
+void loop_old() {
+  // Show timer
+  Serial.print("ms since start: ");
+  Serial.println(millis());
+
+  strip.clear();
+
+ // Switch between sparkle and strobe every 10 seconds
+ //if (millis() / 10000 % 2 == 0)
+ //{
+ //   Sparkle(255, 255, 255, 0);
+ // }
+ //else
+ //{
+ //  Strobe(255, 255, 255, 10, 50, 1000);
+ // }
+}
+
+// Loop with more than 2 effects
+void loop()
+{
+   //Show timer
+  Serial.print("Timer: ");
+  Serial.println(millis());
+
+  strip.clear();
+
+  // Don't forget break in a switch
+  // replace 3 with however many effects you have
+  // add new effect by adding a new case (count case from 0 but not %)
+  switch (millis() / 10000 % 3)
+  {
+    case 0:
+      Sparkle(255, 255, 255, 0);
+      break;
+    case 1:
+      Strobe(255, 255, 255, 10, 50, 1000);
+      break;
+    case 2:
+      FadeInOut(0xff, 0x77, 0x00);
+      break;
+    default:
+      Serial.println("Oh no this is out of range");
+  }
+}
+
+   leds[Pixel].r = red;
+   leds[Pixel].g = green;
+   leds[Pixel].b = blue;
+ #endif
+}
+
+void setAll(byte red, byte green, byte blue) {
+  for(int i = 0; i < NUM_LEDS; i++ ) {
+    setPixel(i, red, green, blue);
+  }
+  showStrip();
+}
+
+void Sparkle(byte red, byte green, byte blue, int SpeedDelay) {
+  int Pixel = random(NUM_LEDS);
+  setPixel(Pixel,red,green,blue);
+  showStrip();
+  delay(SpeedDelay);
+  setPixel(Pixel,0,0,0);
+}
+
+void Strobe(byte red, byte green, byte blue, int StrobeCount, int FlashDelay, int EndPause){
   for(int j = 0; j < StrobeCount; j++) {
     setAll(red,green,blue);
     showStrip();
