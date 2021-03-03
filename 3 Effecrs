@@ -1,0 +1,142 @@
+// Which pin on the Arduino is connected to the NeoPixels?
+#define PIN        6 // On Trinket or Gemma, suggest changing this to 1
+
+// How many NeoPixels are attached to the Arduino?
+#define NUMPIXELS 16 // Popular NeoPixel ring size
+
+#include <Adafruit_NeoPixel.h>
+#define NUM_LEDS 150
+// Parameter 1 = number of pixels in strip
+// Parameter 2 = pin number (most are valid)
+// Parameter 3 = pixel type flags, add together as needed:
+//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
+//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
+//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
+//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
+
+void showStrip() {
+ #ifdef ADAFRUIT_NEOPIXEL_H
+   // NeoPixel
+   strip.show();
+ #endif
+ #ifndef ADAFRUIT_NEOPIXEL_H
+   // FastLED
+   FastLED.show();
+ #endif
+}
+
+void setPixel(int Pixel, byte red, byte green, byte blue) {
+ #ifdef ADAFRUIT_NEOPIXEL_H
+   // NeoPixel
+   strip.setPixelColor(Pixel, strip.Color(red, green, blue));
+ #endif
+ #ifndef ADAFRUIT_NEOPIXEL_H
+   // FastLED
+   leds[Pixel].r = red;
+   leds[Pixel].g = green;
+   leds[Pixel].b = blue;
+ #endif
+}
+
+void setAll(byte red, byte green, byte blue) {
+  for(int i = 0; i < NUM_LEDS; i++ ) {
+    setPixel(i, red, green, blue);
+  }
+  showStrip();
+}
+
+void Sparkle(byte red, byte green, byte blue, int SpeedDelay) {
+  int Pixel = random(NUM_LEDS);
+  setPixel(Pixel,red,green,blue);
+  showStrip();
+  delay(SpeedDelay);
+  setPixel(Pixel,0,0,0);
+}
+
+void Strobe(byte red, byte green, byte blue, int StrobeCount, int FlashDelay, int EndPause){
+  for(int j = 0; j < StrobeCount; j++) {
+    setAll(red,green,blue);
+    showStrip();
+    delay(FlashDelay);
+    setAll(0,0,0);
+    showStrip();
+    delay(FlashDelay);
+  }
+
+  void RunningLights(byte red, byte green, byte blue, int WaveDelay); {
+  int Position=0;
+  for(int j=0; j<NUM_LEDS*2; j++)
+      Position++; // = 0; //Position + Rate;
+      for(int i=0; i<NUM_LEDS; i++) {
+        // sine wave, 3 offset waves make a rainbow!
+        //float level = sin(i+Position) * 127 + 128;
+        //setPixel(i,level,0,0);
+        //float level = sin(i+Position) * 127 + 128;
+        setPixel(i,((sin(i+Position) * 127 + 128)/255)*red,
+                   ((sin(i+Position) * 127 + 128)/255)*green,
+                   ((sin(i+Position) * 127 + 128)/255)*blue);     
+      showStrip();
+      delay(WaveDelay);
+
+}
+
+void setup() {
+  Serial.begin(9600);
+  strip.begin();
+  strip.show(); // Initialize all pixels to 'off'
+}
+
+void loop_old() {
+  // Show timer
+  Serial.print("ms since start: ");
+  Serial.println(millis());
+
+  strip.clear();
+
+  // Switch between sparkle and strobe every 10 seconds
+  //if (millis() / 10000 % 2 == 0)
+  //{
+  //  Sparkle(255, 255, 255, 0);
+  //}
+  //else
+  //{
+    
+  //  Strobe(255, 255, 255, 10, 50, 1000);
+  //}
+}
+
+// Loop with more than 2 effects
+void loop()
+{
+  // Show timer
+  Serial.print("Timer: ");
+  Serial.println(millis());
+
+  strip.clear();
+
+  // Don't forget break in a switch
+  // replace 3 with however many effects you have
+  // add new effect by adding a new case (count case from 0 but not %)
+  switch (millis() / 10000 % 3)
+  {
+    case 0:
+      Sparkle(255, 255, 255, 0);
+      break;
+    case 1:
+      Strobe(255, 255, 255, 10, 50, 1000);
+      break;
+    case 2:
+      RunningLights(0xff,0xff,0x00, 50);
+      sam();
+      break;
+    default:
+      Serial.println("Oh no this is out of range");
+  }
+}
+
+void sam()
+{
+  setPixel(random(NUM_LEDS), random(255), random(255), random(255));
+  strip.show();
+}
