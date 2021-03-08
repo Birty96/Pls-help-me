@@ -6,7 +6,7 @@
 #define PIN        6
 
 // How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS 16 // Popular NeoPixel ring size
+#define NUMPIXELS 256 // Popular NeoPixel ring size
 
 #include <Adafruit_NeoPixel.h>
 #define NUM_LEDS 256
@@ -19,6 +19,13 @@
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 
+ uint32_t blue = strip.Color(0, 0, 255);
+ uint32_t red = strip.Color(255, 0, 0);
+ uint32_t green = strip.Color(0, 255, 0);
+ uint32_t purple = strip.Color(102, 0, 102);
+ uint32_t white = strip.Color(255, 255, 255);
+ uint32_t black = strip.Color(0,0,0);
+
 void showStrip();
 void setAll(byte, byte, byte);
 void strobe(byte, byte, byte, unsigned long, unsigned long);
@@ -26,19 +33,29 @@ void sparkle(byte, byte, byte, unsigned long, unsigned long);
 void cylonBounce(byte, byte, byte, int, unsigned long, unsigned long);
 void FadeInOut(byte, byte, byte, unsigned long, unsigned long);
 void meteorRain(byte r, byte g, byte b, byte meteorSize, byte meteorTrailDecay, boolean meteorRandomDecay, unsigned long wait, unsigned long n );
+void fadeToBlack(int ledNo, byte fadeValue);
 
 /**
  * Loops continously, but this is only going to run once for the whole 'song' instead
  * of running the loop like we did last time
  */
 void loop() {
+  
+  strip.fill(blue, 0, 300);
+  strip.show();
+  delay(5000);
+  strip.fill(black, 0, 300);
+  strip.show();
+  delay(5000);
+
+  //FadeInOut(255, 255, 0, 2000, 10000);
   cylonBounce(0, 0, 255, 2, 20, 5000);
   
   runningLights(50, 50, 255, 20, 5000);
   // Strobe red every 0.2 seconds for 5 seconds
   strobe(255, 0, 0, 200, 5000);
   // Sparkle random green every 0.2 seconds for 5 seconds
-  sparkle(0, 255, 0, 200, 5000);
+  sparkle(0, 255, 0, 20, 5000);
   
   strobe(255, 0, 0, 100, 500);
   strobe(0, 255, 0, 100, 500);
@@ -46,11 +63,13 @@ void loop() {
 
   meteorRain(255, 255, 255, 10, 64, true, 30, 3000);
   
-//  FadeInOut(255, 255, 0, 2000, 10000);
+
   
   setAll(0, 0, 0);
   delay(5000);
 }
+
+
 
 /**
  * Strobe a colour (`r`, `g`, `b`) every `wait` ms for `n` ms
@@ -78,7 +97,7 @@ void sparkle(byte r, byte g, byte b, unsigned long wait, unsigned long n) {
   
   while (startTime + n > millis())
   {
-    int pixel = random(NUM_LEDS);
+    int pixel = random(NUMPIXELS);
   	setPixel(pixel, r, g, b);
   	showStrip();
   	delay(wait);
@@ -170,7 +189,8 @@ void meteorRain(byte r, byte g, byte b, byte meteorSize, byte meteorTrailDecay, 
     delay(wait);
   }
 }
- /* void FadeInOut(byte r, byte g, byte b, unsigned long wait, unsigned long n) {
+
+  /*void FadeInOut(byte r, byte g, byte b, unsigned long wait, unsigned long n) {
   float r, g, b;
     
     	while (startTime + n > millis())
